@@ -90,10 +90,10 @@ const updateAvatar = async (req, res) => {
   const { path: tempUpload, originalname } = req.file;
   const filename = `${_id}_${originalname}`;
   const resultUpload = path.join(avatarsDir, filename);
-  await fs.rename(tempUpload, resultUpload);
-  Jimp.read(resultUpload)
-    .then((avatar) => avatar.resize(250, 250))
-    .catch((e) => console.error(e));
+  await Jimp.read(tempUpload)
+    .then((image) => image.resize(250, 250).write(resultUpload))
+    .catch((e) => console.error(e))
+    .finally(() => fs.unlink(tempUpload));
   const avatarURL = path.join('avatars', filename);
   await User.findByIdAndUpdate(_id, { avatarURL });
 
